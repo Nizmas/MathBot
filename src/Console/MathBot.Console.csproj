@@ -26,9 +26,6 @@
             <DependentUpon>appsettings.json</DependentUpon>
             <ExcludeFromSingleFile>false</ExcludeFromSingleFile>
         </None>
-        <None Update="math.db">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
     <ItemGroup>
