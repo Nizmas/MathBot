@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TelegramService.Console": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "MATH_CONSUL_URI": "http://localhost:8500"
+      }
+    }
+  }
+}
