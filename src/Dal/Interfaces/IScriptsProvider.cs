@@ -5,17 +5,20 @@ public interface IScriptsProvider
     /// <summary>
     /// Получить все имеющиеся пары ключ-значение
     /// </summary>
-    Task<IDictionary<string, string>> GetAllAsync();
-    
+    /// <param name="cancellationToken">Токен отмены</param>
+    Task<IDictionary<string, string>> GetAllAsync(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Получить скрипт по ключу
     /// </summary>
     /// <param name="key">Ключ</param>
-    Task<string> GetValueAsync(string key);
+    /// <param name="cancellationToken">Токен отмены</param>
+    Task<string> GetValueAsync(string key, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Присвоить значение по ключу
     /// </summary>
     /// <param name="keyValuePair">Пара ключ-значение</param>
-    Task SetValueAsync(KeyValuePair<string, string> keyValuePair);
+    /// <param name="cancellationToken">Токен отмены</param>
+    Task SetValueAsync(KeyValuePair<string, string> keyValuePair, CancellationToken cancellationToken = default);
 }

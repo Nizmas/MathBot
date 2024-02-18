@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 using Consul;
 using MathBot.Dal.Interfaces;
 using Microsoft.Extensions.Options;
@@ -21,19 +20,21 @@ public class ScriptsProvider : IScriptsProvider
         _consulOptions = consulOptions?.Value ?? throw new ArgumentNullException(nameof(consulOptions));
     }
 
-    public async Task<IDictionary<string, string>> GetAllAsync()
+    /// <inheritdoc/>
+    public async Task<IDictionary<string, string>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var readResult = await _consulClient.KV.List($"{_consulOptions.Prefix}/{FolderName}");
+        var consulKey = $"{_consulOptions.Prefix}/{FolderName}";
+        var readResult = await _consulClient.KV.List(consulKey, cancellationToken);
 
         if (readResult?.Response == null || !readResult.Response.Any())
         {
-            throw new ConsulRequestException();
+            throw new KeyNotFoundException($"Ключ-папка {consulKey} не найдена или пуста");
         }
 
         var keyValDict = new Dictionary<string, string>();
         foreach (var kvPair in readResult.Response.Skip(1))
         {
-            var key = kvPair.Key.Replace($"{_consulOptions.Prefix}/{FolderName}", string.Empty);
+            var key = kvPair.Key.Replace(consulKey, string.Empty);
             var value = Encoder.GetString(kvPair.Value, 0, kvPair.Value.Length);
             keyValDict.Add(key, value);
         }
@@ -42,9 +43,9 @@ public class ScriptsProvider : IScriptsProvider
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetValueAsync(string key)
+    public async Task<string> GetValueAsync(string key, CancellationToken cancellationToken = default)
     {
-        var readResult = await _consulClient.KV.Get($"{_consulOptions.Prefix}/{FolderName}/{key}");
+        var readResult = await _consulClient.KV.Get($"{_consulOptions.Prefix}/{FolderName}/{key}", cancellationToken);
 
         if (readResult?.Response == null)
         {
@@ -56,7 +57,7 @@ public class ScriptsProvider : IScriptsProvider
     }
     
     /// <inheritdoc/>
-    public async Task SetValueAsync(KeyValuePair<string, string> keyValuePair)
+    public async Task SetValueAsync(KeyValuePair<string, string> keyValuePair, CancellationToken cancellationToken = default)
     {
         var key = $"{_consulOptions.Prefix}/{FolderName}/{keyValuePair.Key}";
         
@@ -65,7 +66,7 @@ public class ScriptsProvider : IScriptsProvider
             Value = Encoder.GetBytes(keyValuePair.Value),
         };
         
-        var writeResult = await _consulClient.KV.Put(keyVal);
+        var writeResult = await _consulClient.KV.Put(keyVal, cancellationToken);
         if (!writeResult.Response)
         {
             throw new ConsulRequestException();
