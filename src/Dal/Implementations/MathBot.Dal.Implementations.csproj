@@ -9,6 +9,14 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Contracts\MathBot.Contracts.csproj" />
+      <ProjectReference Include="..\..\SomeCompany.Common\SomeCompany.Common.csproj" />
+      <ProjectReference Include="..\Interfaces\MathBot.Dal.Interfaces.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Consul" Version="1.7.14.3" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     </ItemGroup>
 
 </Project>

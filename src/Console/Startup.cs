@@ -1,4 +1,5 @@
 using MathBot.Bll.Implementations.Extensions;
+using MathBot.Dal.Implementations.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SomeCompany.Common.Extensions;
@@ -28,6 +29,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.RegistrationMathBotBll(Configuration)
-                .AddConsulClient(Configuration);
+                .RegistrationMathBotDal()
+                .AddConsulClient(AppDomain.CurrentDomain.FriendlyName, Configuration);
     }
 }

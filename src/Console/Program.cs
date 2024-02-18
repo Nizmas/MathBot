@@ -24,11 +24,14 @@ static class Program
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
                 const string prefix = "MATH_";
+                const string settingsNodeName = "appsettings";
                 var env = hostingContext.HostingEnvironment;
-                config.AddJsonFile("appsettings.json")
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json")
+                var modeSettings = $"{settingsNodeName}.{env.EnvironmentName}";
+                
+                config.AddJsonFile($"{settingsNodeName}.json")
+                    .AddJsonFile($"{modeSettings}.json")
                     .AddEnvironmentVariables(prefix)
-                    .AddConsul(env.ApplicationName, prefix);
+                    .AddConsul($"{env.ApplicationName}/{modeSettings}", prefix);
 
                 if (args.Any())
                 {

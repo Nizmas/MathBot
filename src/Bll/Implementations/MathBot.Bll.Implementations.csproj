@@ -9,12 +9,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Contracts\MathBot.Contracts.csproj" />
+        <ProjectReference Include="..\..\Dal\Implementations\MathBot.Dal.Implementations.csproj" />
+        <ProjectReference Include="..\Interfaces\MathBot.Bll.Interfaces.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <PackageReference Include="Consul" Version="1.7.14.3" />
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.0-3.final" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
       <PackageReference Include="Telegram.Bots" Version="5.9.0" />
       <PackageReference Include="Telegram.Bots.Extensions.Polling" Version="5.9.0" />
     </ItemGroup>
