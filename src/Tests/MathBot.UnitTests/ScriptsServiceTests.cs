@@ -1,15 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text;
-using Consul;
 using MathBot.Bll.Implementations;
 using MathBot.Bll.Interfaces;
-using MathBot.Dal.Implementations;
 using MathBot.Dal.Interfaces;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
-using SomeCompany.Common;
 
 namespace MathBot.UnitTests;
 
