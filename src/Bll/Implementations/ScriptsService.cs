@@ -32,7 +32,7 @@ public class ScriptsService : IScriptsService
         var command = args[0].Replace("/", string.Empty);
         if (string.IsNullOrEmpty(command))
         {
-            throw new KeyNotFoundException($"Скрипт с ключом {command} не найден");
+            throw new KeyNotFoundException($"Команда {args[0]} не корректна");
         }
         
         var script = await _scriptsProvider.GetValueAsync(command, cancellationToken);

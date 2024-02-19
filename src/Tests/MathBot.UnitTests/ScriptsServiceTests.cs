@@ -1,6 +1,8 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Consul;
+using MathBot.Bll.Implementations;
+using MathBot.Bll.Interfaces;
 using MathBot.Dal.Implementations;
 using MathBot.Dal.Interfaces;
 using Microsoft.Extensions.Options;
@@ -12,59 +14,77 @@ using SomeCompany.Common;
 namespace MathBot.UnitTests;
 
 [TestFixture]
-public class ScriptsServiceTestsTests
+public class ScriptsServiceTests
 {
-    private const string Prefix = "MathBot";
-    private const string CorrectValue = "return \"RESULT\"";
-    private const string IncorrectValueWoReturn = "throw";
-    private const string FirstKey = "FirstKey";
-    private const string SecondKey = "SecondKey";
-    private readonly IScriptsProvider _scriptsProvider;
-    private readonly Mock<IConsulClient> _consulClientMock = new ();
-    private readonly Mock<IOptions<ConsulOptions>> _consulOptionsMock = new ();
+    private const string Result = "RESULT";
+    private const string CorrectValue = $"return \"{Result}\";";
+    private const string Key = "CommandKey";
+    private readonly IScriptsService _scriptsService;
+    private readonly Mock<IScriptsProvider> _scriptsProviderMock = new ();
     
-    public ScriptsServiceTestsTests()
+    public ScriptsServiceTests()
     {
-        _consulOptionsMock.Setup(cO => cO.Value).Returns(new ConsulOptions() { Prefix = Prefix });
-        _scriptsProvider = new ScriptsProvider(_consulClientMock.Object, _consulOptionsMock.Object);
+        _scriptsService = new ScriptsService(_scriptsProviderMock.Object);
     }
     
     [Test]
-    public void GetAllAsync_NullResponse_Exception()
+    public async Task ExecuteAsync_CorrectScript_ResultResponse()
     {
         // Arrange
-        _consulClientMock.Setup(cC => cC.KV.List(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                            .ReturnsAsync((string _, CancellationToken _) => new QueryResult<KVPair[]>());
-        
-        // Act, Assert
-        Assert.ThrowsAsync<KeyNotFoundException>(async () => await _scriptsProvider.GetAllAsync(CancellationToken.None));
-    }
-    
-    [Test]
-    public async Task GetAllAsync_TwoCommands_SkippedFirstCommand()
-    {
-        // Arrange
-        var kvPairs = new KVPair[]
-        {
-            new KVPair(FirstKey),
-            new KVPair(SecondKey)
-            {
-                Value = Encoding.UTF8.GetBytes(CorrectValue),
-            }
-        };
-        
-        _consulClientMock.Setup(cC => cC.KV.List(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string _, CancellationToken _) => new QueryResult<KVPair[]>()
-            {
-                Response = kvPairs
-            });
+        _scriptsProviderMock.Setup(sP => sP.GetValueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                            .ReturnsAsync((string _ ,CancellationToken _) => CorrectValue);
         
         // Act
-        var commandsDict = await _scriptsProvider.GetAllAsync(CancellationToken.None);
-        var skippedKv = commandsDict.FirstOrDefault(cD => cD.Key == FirstKey);
+        var result = await _scriptsService.ExecuteAsync(Key, CancellationToken.None);
         
         // Assert
-        ClassicAssert.AreEqual(kvPairs.Length, commandsDict.Count + 1);
-        ClassicAssert.IsNull(skippedKv.Key);
+        ClassicAssert.AreEqual(Result, result);
+    }
+    
+    [Test]
+    public void GetAllAsync_NoScript_Exception()
+    {
+        // Arrange
+        _scriptsProviderMock.Setup(sP => sP.GetValueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                            .ReturnsAsync((string _, CancellationToken _) => CorrectValue);
+        
+        // Act, Assert
+        Assert.ThrowsAsync<KeyNotFoundException>(async () => await _scriptsService.ExecuteAsync("/", CancellationToken.None));
+    }
+    
+    [Test]
+    public void AddAsync_CommandWoScript_Exception()
+    {
+        // Arrange, Act, Assert
+        Assert.ThrowsAsync<ValidationException>(async () => await _scriptsService.AddAsync($"{Key}", CancellationToken.None));
+    }
+    
+    [Test]
+    public void AddAsync_CommandEmptyScript_Exception()
+    {
+        // Arrange, Act, Assert
+        Assert.ThrowsAsync<ValidationException>(async () => await _scriptsService.AddAsync($"{Key}\n", CancellationToken.None));
+    }
+    
+    [Test]
+    public void AddAsync_CommandIncorrectScript_Exception()
+    {
+        // Arrange, Act, Assert
+        Assert.ThrowsAsync<ValidationException>(async () => await _scriptsService.AddAsync($"{Key}\n{Result}", CancellationToken.None));
+    }
+    
+    [Test]
+    public async Task AddAsync_CommandCorrectScript_Exception()
+    {
+        // Arrange
+        _scriptsProviderMock.Setup(sP => sP.SetValueAsync(It.IsAny<KeyValuePair<string, string>>(), It.IsAny<CancellationToken>()))
+                            .Returns(Task.CompletedTask);
+        
+        // Act
+        var addResult = await _scriptsService.AddAsync($"{Key}\n{CorrectValue}", CancellationToken.None);
+        var commandKey = Key.ToLower();
+        
+        // Assert
+        ClassicAssert.True(addResult.Contains(commandKey));
     }
 }
