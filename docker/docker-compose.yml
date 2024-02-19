@@ -3,23 +3,11 @@ services:
   # consul
   consul-server:
     image: consul:1.15.4
-    # environment:
-    #   CONSUL_LOCAL_CONFIG: |
-    #     {
-    #       "acl": {
-    #         "enabled": true,
-    #         "default_policy": "deny",
-    #         "enable_token_persistence": true,
-    #         "tokens": {
-    #           "initial_management": "UUID of the initial management token",
-    #         }
-    #       }
-    #     }
     # container_name: consul-server
     restart: always
     volumes:
       - ./consul/data:/consul/data
-    #  - ./server.json:/consul/config/server.json:ro
+      - ./consul/server.json:/consul/config/server.json:ro
     #  - ./certs/:/consul/config/certs/:ro
     # networks:
     #   - consul

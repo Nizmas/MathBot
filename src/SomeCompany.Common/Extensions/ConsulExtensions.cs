@@ -20,16 +20,18 @@ public static class ConsulExtensions
     {
         services.Configure<ConsulOptions>(cO => cO.Prefix = consulPrefix );
         
-        var consulServerPath = config.GetSection(ConsulConsts.ConsulEnvName).Value;
-        if (string.IsNullOrEmpty(consulServerPath))
+        var consulServerUri = config.GetSection(ConsulConsts.ConsulEnvUri).Value;
+        if (string.IsNullOrEmpty(consulServerUri))
         {
-            throw new ArgumentNullException(ConsulConsts.ConsulEnvName);
+            throw new ArgumentNullException(ConsulConsts.ConsulEnvUri);
         }
 
+        var consulServerToken = config.GetSection(ConsulConsts.ConsulEnvToken).Value;
         services.AddScoped<IConsulClient>(consul => 
             new ConsulClient(consulConfig =>
             {
-                consulConfig.Address = new Uri(consulServerPath);
+                consulConfig.Address = new Uri(consulServerUri);
+                consulConfig.Token = consulServerToken;
             }));
 
         return services;
@@ -44,18 +46,20 @@ public static class ConsulExtensions
     /// <exception cref="ArgumentNullException"></exception>
     public static IConfigurationBuilder AddConsul(this IConfigurationBuilder config, string consulPrefix, string? envPrefix)
     {
-        var consulServerPath = Environment.GetEnvironmentVariable($"{envPrefix}{ConsulConsts.ConsulEnvName}");
+        var consulServerUri = Environment.GetEnvironmentVariable($"{envPrefix}{ConsulConsts.ConsulEnvUri}");
 
-        if (string.IsNullOrEmpty(consulServerPath))
+        if (string.IsNullOrEmpty(consulServerUri))
         {
-            throw new ArgumentNullException(ConsulConsts.ConsulEnvName);
+            throw new ArgumentNullException(ConsulConsts.ConsulEnvUri);
         }
 
+        var consulServerToken = Environment.GetEnvironmentVariable($"{envPrefix}{ConsulConsts.ConsulEnvToken}");
         config.AddConsul(consulPrefix, op =>
             {
                 op.ConsulConfigurationOptions = cco =>
                 {
-                    cco.Address = new Uri(consulServerPath);
+                    cco.Address = new Uri(consulServerUri);
+                    cco.Token = consulServerToken;
                 };
             });
 

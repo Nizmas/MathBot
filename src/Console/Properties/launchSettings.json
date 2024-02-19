@@ -4,7 +4,8 @@
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
-        "MATH_CONSUL_URI": "http://localhost:8500"
+        "MATH_CONSUL_URI": "http://localhost:8500",
+        "MATH_CONSUL_TOKEN": "e95b599e-166e-7d80-08ad-aee76e7ddf19"
       }
     }
   }
