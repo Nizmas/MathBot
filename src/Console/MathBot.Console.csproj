@@ -26,6 +26,9 @@
             <DependentUpon>appsettings.json</DependentUpon>
             <ExcludeFromSingleFile>false</ExcludeFromSingleFile>
         </None>
+        <None Update="nlog.config">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
