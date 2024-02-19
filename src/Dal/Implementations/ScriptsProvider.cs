@@ -69,7 +69,7 @@ public class ScriptsProvider : IScriptsProvider
         var writeResult = await _consulClient.KV.Put(keyVal, cancellationToken);
         if (!writeResult.Response)
         {
-            throw new ConsulRequestException();
+            throw new KeyNotFoundException($"Не удалось сохранить команду {keyValuePair.Key}");
         }
     }
 }
