@@ -20,10 +20,4 @@
       <ProjectReference Include="..\..\Console\MathBot.Console.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="Moq">
-        <HintPath>..\..\..\..\..\.nuget\packages\moq\4.20.70\lib\net6.0\Moq.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
 </Project>
